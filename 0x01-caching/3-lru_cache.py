@@ -1,39 +1,29 @@
 #!/usr/bin/env python3
-"""Least Recently Used caching module.
-"""
+"""Module for Least Recently Used (LRU) caching mechanism."""
 from collections import OrderedDict
-
 from base_caching import BaseCaching
 
-
 class LRUCache(BaseCaching):
-    """Represents an object that allows storing and
-    retrieving items from a dictionary with a LRU
-    removal mechanism when the limit is reached.
-    """
+    """LRU cache that evicts the least recently used items first."""
+
     def __init__(self):
-        """Initializes the cache.
-        """
+        """Initialize the LRU cache."""
         super().__init__()
         self.cache_data = OrderedDict()
 
     def put(self, key, item):
-        """Adds an item in the cache.
-        """
-        if key is None or item is None:
-            return
-        if key not in self.cache_data:
-            if len(self.cache_data) + 1 > BaseCaching.MAX_ITEMS:
-                lru_key, _ = self.cache_data.popitem(True)
-                print("DISCARD:", lru_key)
+        """Add an item to the cache with LRU eviction policy."""
+        if key is not None and item is not None:
+            if key not in self.cache_data and len(self.cache_data) >= BaseCaching.MAX_ITEMS:
+                lru_key = next(iter(self.cache_data))
+                print(f"DISCARD: {lru_key}")
+                self.cache_data.pop(lru_key)
             self.cache_data[key] = item
             self.cache_data.move_to_end(key, last=False)
-        else:
-            self.cache_data[key] = item
 
     def get(self, key):
-        """Retrieves an item by key.
-        """
-        if key is not None and key in self.cache_data:
+        """Retrieve an item from the cache by key and update its usage."""
+        if key in self.cache_data:
             self.cache_data.move_to_end(key, last=False)
-        return self.cache_data.get(key, None)
+            return self.cache_data[key]
+        return None

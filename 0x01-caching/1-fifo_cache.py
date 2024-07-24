@@ -1,33 +1,25 @@
 #!/usr/bin/env python3
-"""First-In First-Out caching module.
-"""
+"""Module for FIFO caching mechanism."""
 from collections import OrderedDict
-
 from base_caching import BaseCaching
 
-
 class FIFOCache(BaseCaching):
-    """Represents an object that allows storing and
-    retrieving items from a dictionary with a FIFO
-    removal mechanism when the limit is reached.
-    """
+    """FIFO cache that evicts the oldest items first."""
+
     def __init__(self):
-        """Initializes the cache.
-        """
+        """Initialize the FIFO cache."""
         super().__init__()
         self.cache_data = OrderedDict()
 
     def put(self, key, item):
-        """Adds an item in the cache.
-        """
-        if key is None or item is None:
-            return
-        self.cache_data[key] = item
-        if len(self.cache_data) > BaseCaching.MAX_ITEMS:
-            first_key, _ = self.cache_data.popitem(False)
-            print("DISCARD:", first_key)
+        """Add an item to the cache with FIFO eviction policy."""
+        if key is not None and item is not None:
+            self.cache_data[key] = item
+            if len(self.cache_data) > BaseCaching.MAX_ITEMS:
+                first_key = next(iter(self.cache_data))
+                print(f"DISCARD: {first_key}")
+                self.cache_data.popitem(last=False)
 
     def get(self, key):
-        """Retrieves an item by key.
-        """
-        return self.cache_data.get(key, None)
+        """Retrieve an item from the cache by key."""
+        return self.cache_data.get(key)
